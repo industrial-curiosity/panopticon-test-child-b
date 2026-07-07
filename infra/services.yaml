@@ -1,0 +1,7 @@
+services:
+  inventory:
+    base_url: ${INVENTORY_API_URL}
+  stripe:
+    base_url: https://api.stripe.com/v1
+  shipping:
+    base_url: ${SHIPPING_API_URL}

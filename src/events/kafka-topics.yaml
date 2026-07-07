@@ -1,0 +1,7 @@
+topics:
+  - name: order-events
+    partitions: 12
+    replication_factor: 3
+    config:
+      retention.ms: "604800000"
+      cleanup.policy: delete

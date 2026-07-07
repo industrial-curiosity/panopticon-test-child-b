@@ -1,0 +1,4 @@
+buckets:
+  - name: order-attachments-bucket
+    versioning: false
+    lifecycle_expiration_days: 7
