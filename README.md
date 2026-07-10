@@ -4,7 +4,7 @@ TypeScript order management service. Handles order creation, fulfillment, and li
 
 ## Repository structure
 
-```
+```text
 src/
 ├── api/
 │   ├── openapi.yaml              # REST API spec

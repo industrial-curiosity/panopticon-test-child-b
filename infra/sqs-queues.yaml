@@ -1,0 +1,6 @@
+queues:
+  # panopticon-interface order-processing-queue
+  - name: order-processing-queue
+    type: sqs
+    visibility_timeout_seconds: 300
+    receive_wait_time_seconds: 20
