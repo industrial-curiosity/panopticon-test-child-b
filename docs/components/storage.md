@@ -8,9 +8,12 @@ time-limited signed URL, and delete. Out of scope: nothing in this repo currentl
 
 ## Interfaces
 
-Not present in the local interface index: the S3 bucket is configured entirely through the
-`ORDER_ATTACHMENTS_BUCKET` environment variable in `src/storage/attachments.ts`, with no bucket
-declaration/config file for a deterministic parser or LLM-fallback pass to extract a name from.
+- Owns `order-attachments-bucket` (`s3`), extracted by the LLM fallback pass from
+  `infra/s3-buckets.yaml` (the bucket's declaration, carrying the
+  `# panopticon-interface order-attachments-bucket` hint). `src/storage/attachments.ts` itself only
+  references the bucket via the `ORDER_ATTACHMENTS_BUCKET` environment variable, with no
+  declaration a parser or LLM pass can extract a name from — the index entry is grounded in the
+  `infra/` config, not the TypeScript. See [interfaces.md](../interfaces.md).
 
 ## Key modules
 

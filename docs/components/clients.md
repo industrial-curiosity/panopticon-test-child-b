@@ -10,10 +10,13 @@ directory (no route handler or worker wires these in).
 
 ## Interfaces
 
-Not present in the local interface index. Each client points at (consumes) an external service,
-but no config file declares those services for a deterministic parser or LLM-fallback pass to
-extract from — only the `.ts` client code itself references them, via environment-variable base
-URLs.
+- Consumes `inventory-api`, `stripe-payments`, and `shipping-provider-api` (all `rest`), extracted
+  by the LLM fallback pass from `infra/services.yaml` (each carrying its own
+  `# panopticon-interface <name>` hint). All three have `owner: null` in the index — they are
+  external services this repo does not own. The `.ts` client files (`inventory.ts`, `stripe.ts`,
+  `shipping.ts`) reference the same services only via environment-variable base URLs, with no
+  declaration a parser or LLM pass can extract a name from — the index entries are grounded in the
+  `infra/` config, not the TypeScript. See [interfaces.md](../interfaces.md).
 
 ## Key modules
 

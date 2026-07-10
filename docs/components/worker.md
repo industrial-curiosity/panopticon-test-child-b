@@ -10,9 +10,12 @@ handling is currently logging-only (`console.log`) — it does not call `clients
 
 ## Interfaces
 
-Not present in the local interface index: the SQS queue is configured entirely through the
-`ORDER_PROCESSING_QUEUE_URL` environment variable in `src/queue/processor.ts`, with no queue
-declaration/config file for a deterministic parser or LLM-fallback pass to extract a name from.
+- Owns `order-processing-queue` (`sqs`), extracted by the LLM fallback pass from
+  `infra/sqs-queues.yaml` (the queue's declaration, carrying the
+  `# panopticon-interface order-processing-queue` hint). `src/queue/processor.ts` itself only
+  references the queue via the `ORDER_PROCESSING_QUEUE_URL` environment variable, with no
+  declaration a parser or LLM pass can extract a name from — the index entry is grounded in the
+  `infra/` config, not the TypeScript. See [interfaces.md](../interfaces.md).
 
 ## Key modules
 

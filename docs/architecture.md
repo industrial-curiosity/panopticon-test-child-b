@@ -45,14 +45,18 @@ Each module's intended role, as declared by its own code:
 
 - **Kafka** (`KAFKA_BROKERS`) — required to publish to `order-events`; see
   [interfaces.md](interfaces.md).
-- **AWS SQS** (`ORDER_PROCESSING_QUEUE_URL`, `AWS_REGION`) — the `worker` component's job queue;
-  internal, not in the local interface index (no config file backs it, so it is not extractable by
-  either the deterministic parsers or the LLM fallback pass — see
-  [components/worker.md](components/worker.md)).
-- **AWS S3** (`ORDER_ATTACHMENTS_BUCKET`, `AWS_REGION`) — attachment storage used by `storage`;
-  same extraction caveat as SQS above.
-- **Inventory service** (`INVENTORY_API_URL`) — external REST dependency consumed by `clients`;
-  not in the local interface index for the same reason.
+- **AWS SQS** (`ORDER_PROCESSING_QUEUE_URL`, `AWS_REGION`) — the `worker` component's job queue,
+  declared in `infra/sqs-queues.yaml` and indexed as `order-processing-queue`; see
+  [interfaces.md](interfaces.md) and [components/worker.md](components/worker.md).
+- **AWS S3** (`ORDER_ATTACHMENTS_BUCKET`, `AWS_REGION`) — attachment storage used by `storage`,
+  declared in `infra/s3-buckets.yaml` and indexed as `order-attachments-bucket`; see
+  [interfaces.md](interfaces.md) and [components/storage.md](components/storage.md).
+- **Inventory service** (`INVENTORY_API_URL`) — external REST dependency consumed by `clients`,
+  declared in `infra/services.yaml` and indexed as `inventory-api` (`owner: null` — owned outside
+  this repo); see [interfaces.md](interfaces.md).
 - **Stripe** (`STRIPE_SECRET_KEY`) — external payments API consumed by `clients` via the `stripe`
-  npm package.
-- **Shipping provider** (`SHIPPING_API_URL`) — external REST dependency consumed by `clients`.
+  npm package, declared in `infra/services.yaml` and indexed as `stripe-payments` (`owner: null` —
+  third-party); see [interfaces.md](interfaces.md).
+- **Shipping provider** (`SHIPPING_API_URL`) — external REST dependency consumed by `clients`,
+  declared in `infra/services.yaml` and indexed as `shipping-provider-api` (`owner: null` —
+  third-party); see [interfaces.md](interfaces.md).

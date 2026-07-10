@@ -24,8 +24,11 @@ files are present anywhere in the repo.
 Not determinable from this repo. The only workflows under `.github/workflows/` are Panopticon's
 own PR/merge/close checks (`panopticon-pr.yml`, `panopticon-merge.yml`, `panopticon-pr-close.yml`)
 — thin references to reusable workflows in the `industrial-curiosity/panopticon-test` instance
-repo. There is no build/deploy pipeline, Dockerfile, or infrastructure config for this service in
-the repo.
+repo. There is no build/deploy pipeline or Dockerfile in the repo. `infra/` declares the resource
+shapes this service depends on (`infra/sqs-queues.yaml` — `order-processing-queue`;
+`infra/s3-buckets.yaml` — `order-attachments-bucket`; `infra/services.yaml` — the inventory,
+Stripe, and shipping base URLs), but nothing in the repo provisions or deploys them — see
+[architecture.md](architecture.md#dependencies) and [interfaces.md](interfaces.md).
 
 ## Required configuration
 
