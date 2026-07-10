@@ -1,0 +1,7 @@
+{
+  "docs_location": "docs",
+  "instance": "industrial-curiosity/panopticon-test",
+  "repo": "panopticon-test-child-b",
+  "schema_version": 1,
+  "workflow_ref": "main"
+}

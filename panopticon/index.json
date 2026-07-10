@@ -1,0 +1,41 @@
+{
+  "interfaces": {
+    "order-events": [
+      {
+        "consumer": [],
+        "owner": {
+          "component": "panopticon-test-child-b",
+          "repo": "panopticon-test-child-b"
+        },
+        "producer": [
+          {
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "src/events/kafka-topics.yaml"
+            ]
+          }
+        ],
+        "type": "kafka"
+      }
+    ],
+    "orders-api": [
+      {
+        "consumer": [],
+        "owner": {
+          "component": "panopticon-test-child-b",
+          "repo": "panopticon-test-child-b"
+        },
+        "producer": [
+          {
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "src/api/openapi.yaml"
+            ]
+          }
+        ],
+        "type": "rest"
+      }
+    ]
+  },
+  "schema_version": 1
+}
