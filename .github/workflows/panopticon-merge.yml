@@ -1,0 +1,10 @@
+# Wired by Panopticon install.py — a thin reference to the shared workflow in the instance repo.
+# Re-run install.py to update. Secrets and variables are org-level; this repo configures none.
+name: Panopticon merge sync
+on:
+  push:
+    branches: [main]
+jobs:
+  panopticon:
+    uses: industrial-curiosity/panopticon-test/.github/workflows/panopticon-merge.yml@main
+    secrets: inherit
