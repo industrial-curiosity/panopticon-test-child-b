@@ -1,0 +1,61 @@
+{
+  "interfaces": {
+    "inventory-api": [
+      {
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["src/clients/inventory.ts", "infra/services.yaml"]}],
+        "owner": null,
+        "producer": [],
+        "type": "rest"
+      }
+    ],
+    "order-events": [
+      {
+        "consumer": [],
+        "owner": {"component": "events", "repo": "panopticon-test-child-b"},
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/services.yaml", "src/events/kafka-topics.yaml", "src/events/producer.ts"]}],
+        "type": "kafka"
+      }
+    ],
+    "order-processing-queue": [
+      {
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["src/queue/processor.ts", "src/queue/worker.ts", "infra/sqs-queues.yaml"]}],
+        "owner": {"component": "queue", "repo": "panopticon-test-child-b"},
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/queue/processor.ts", "infra/sqs-queues.yaml"]}],
+        "type": "sqs"
+      }
+    ],
+    "orders-api": [
+      {
+        "consumer": [],
+        "owner": {"component": "api", "repo": "panopticon-test-child-b"},
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/api/openapi.yaml", "src/api/routes/orders.ts", "src/api/routes/webhooks.ts"]}],
+        "type": "rest"
+      }
+    ],
+    "order-attachments-bucket": [
+      {
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["src/storage/attachments.ts", "infra/s3-buckets.yaml"]}],
+        "owner": {"component": "storage", "repo": "panopticon-test-child-b"},
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/s3-buckets.yaml"]}],
+        "type": "s3"
+      }
+    ],
+    "shipping-api": [
+      {
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["src/clients/shipping.ts", "infra/services.yaml"]}],
+        "owner": null,
+        "producer": [],
+        "type": "rest"
+      }
+    ],
+    "stripe-api": [
+      {
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["src/clients/stripe.ts", "infra/services.yaml"]}],
+        "owner": null,
+        "producer": [],
+        "type": "rest"
+      }
+    ]
+  },
+  "schema_version": 1
+}
