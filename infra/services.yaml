@@ -1,10 +1,7 @@
 services:
-  # panopticon-interface inventory-api
   inventory:
     base_url: ${INVENTORY_API_URL}
-  # panopticon-interface stripe-payments
   stripe:
     base_url: https://api.stripe.com/v1
-  # panopticon-interface shipping-provider-api
   shipping:
     base_url: ${SHIPPING_API_URL}
