@@ -12,13 +12,13 @@
       {
         "consumer": [],
         "owner": {"component": "events", "repo": "panopticon-test-child-b"},
-        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/services.yaml", "src/events/kafka-topics.yaml", "src/events/producer.ts"]}],
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/events/kafka-topics.yaml", "src/events/producer.ts"]}],
         "type": "kafka"
       }
     ],
     "order-processing-queue": [
       {
-        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["src/queue/processor.ts", "src/queue/worker.ts", "infra/sqs-queues.yaml"]}],
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["src/queue/processor.ts", "src/queue/worker.ts"]}],
         "owner": {"component": "queue", "repo": "panopticon-test-child-b"},
         "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/queue/processor.ts", "infra/sqs-queues.yaml"]}],
         "type": "sqs"
@@ -28,13 +28,13 @@
       {
         "consumer": [],
         "owner": {"component": "api", "repo": "panopticon-test-child-b"},
-        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/api/openapi.yaml", "src/api/routes/orders.ts", "src/api/routes/webhooks.ts"]}],
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/api/openapi.yaml", "src/api/routes/orders.ts"]}],
         "type": "rest"
       }
     ],
     "order-attachments-bucket": [
       {
-        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["src/storage/attachments.ts", "infra/s3-buckets.yaml"]}],
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["src/storage/attachments.ts"]}],
         "owner": {"component": "storage", "repo": "panopticon-test-child-b"},
         "producer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/s3-buckets.yaml"]}],
         "type": "s3"
@@ -46,6 +46,13 @@
         "owner": null,
         "producer": [],
         "type": "rest"
+      },
+      {
+        "consumer": [],
+        "extracted_by": "llm",
+        "owner": {"component": "api", "repo": "panopticon-test-child-b"},
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/api/routes/webhooks.ts"]}],
+        "type": "webhook"
       }
     ],
     "stripe-api": [
@@ -54,6 +61,13 @@
         "owner": null,
         "producer": [],
         "type": "rest"
+      },
+      {
+        "consumer": [],
+        "extracted_by": "llm",
+        "owner": {"component": "api", "repo": "panopticon-test-child-b"},
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/api/routes/webhooks.ts"]}],
+        "type": "webhook"
       }
     ]
   },

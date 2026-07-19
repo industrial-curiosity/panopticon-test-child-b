@@ -2,45 +2,36 @@
 
 ## Responsibility
 
-Owns the order-management HTTP surface: listing, creating, retrieving, updating, and cancelling
-orders, plus stub webhook receivers for Stripe and shipping callbacks. Defined by
-`src/api/openapi.yaml` (the contract) and implemented by the Express routers in
-`src/api/routes/`. Out of scope: the route handlers currently return hardcoded or pass-through
-data and do not call the `clients`, `events`, or `storage` components — request-time integration
-with inventory, payments, shipping, event publishing, or attachment storage is not implemented.
+The API component defines the order-management HTTP contract and Express route handlers for
+listing, creating, retrieving, updating, and cancelling orders. It also defines Stripe and
+shipping webhook receivers.
+
+The handlers are stubs: they do not validate against the OpenAPI schema, persist data, process
+webhook payloads, or call any other component in this repository.
 
 ## Interfaces
 
-- Produces `orders-api` (`rest`), owned by this repo (`api` component). Declared in
-  `src/api/openapi.yaml` and produced again by `src/api/routes/orders.ts` (the route
-  implementation of that contract).
-- Produces `stripe-payments` (`webhook`) and `shipping-provider-api` (`webhook`), both owned by
-  this repo (`api` component): `src/api/routes/webhooks.ts` hosts the `POST /stripe` and
-  `POST /shipping` receiving endpoints for those same external services (matched to the existing
-  `rest` entries owned by [clients](clients.md), which consume the outbound side). These are
-  distinct interface-object entries under the same canonical names, not new interfaces — same
-  external system, different direction/type. See [interfaces.md](../interfaces.md).
+- Owns and produces `orders-api` (`rest`) through the OpenAPI contract and order routes.
+- Owns and produces `stripe-api` (`webhook`) through `POST /stripe`.
+- Owns and produces `shipping-api` (`webhook`) through `POST /shipping`.
+
+See [interfaces.md](../interfaces.md) for source evidence and ownership.
 
 ## Key modules
 
-- `src/api/openapi.yaml` — the OpenAPI 3.0 contract: `Order`, `OrderItem`,
-  `CreateOrderRequest`, `UpdateOrderRequest` schemas and the `/orders` path family.
-- `src/api/routes/orders.ts` — Express router implementing `GET/POST /orders`,
-  `GET/PATCH /orders/:id`, `POST /orders/:id/cancel`. Handlers return stub data (e.g. `POST /`
-  always returns `status: 'pending'` with no persistence).
-- `src/api/routes/webhooks.ts` — `POST /stripe` and `POST /shipping` webhook receivers; both
-  currently just acknowledge receipt (`{ received: true }`) without processing the payload.
+- `src/api/openapi.yaml` — defines the OpenAPI 3.0 order schemas and `/orders` operations.
+- `src/api/routes/orders.ts` — implements Express handlers returning stub order responses.
+- `src/api/routes/webhooks.ts` — acknowledges Stripe and shipping callbacks with
+  `{ received: true }`.
 
 ## Configuration
 
-None read directly by these route files — no environment variables or flags appear in
-`src/api/routes/*` or `src/api/openapi.yaml`.
+This component reads no environment variables, configuration files, or flags. The repository
+does not include an Express application that mounts the routers.
 
 ## Failure modes
 
-No error handling, validation, or persistence exists in the current route implementations, so
-there is no observable failure mode beyond default Express error handling — request bodies are
-not validated against the OpenAPI schema, and no data is retained between requests. There is also
-no assembled Express app: `package.json`'s `dev`/`start` scripts point at `src/index.ts` and
-`dist/index.js`, neither of which exists, so this component cannot currently be run or fail at
-runtime.
+The current handlers have no explicit error handling. Express would surface thrown handler
+errors, but no application-level middleware is present here. Requests are not validated or
+persisted, and webhook payloads are acknowledged without processing. The absent `src/index.ts`
+also prevents the configured development and start commands from serving these routes.
