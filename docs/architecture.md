@@ -2,96 +2,62 @@
 
 ## Purpose
 
-`panopticon-test-child-b` is a TypeScript order-management codebase: order CRUD, an order-events
-Kafka topic, an SQS-backed job queue for order processing, S3 storage for order attachments, and
-REST clients for an inventory service, Stripe, and a shipping provider. Per `ts-order-service.md`,
-this repo also serves as a Panopticon test fixture — its structure exists to exercise deterministic
-parsers (REST/OpenAPI, Kafka) and LLM-fallback extraction against a real TypeScript layout.
+This repository is a TypeScript fixture representing order-management capabilities. It contains
+an HTTP contract and stub route handlers, outbound inventory/payment/shipping clients, a Kafka
+event producer, an SQS processing worker, and S3 attachment helpers.
+
+The components are present as independent modules rather than an assembled application. There is
+no `src/index.ts`, and the API routes do not call the clients, event producer, queue, or storage
+helpers.
 
 ## Components
 
-- [api](components/api.md) — HTTP route handlers and the OpenAPI spec for order management, plus
-  Stripe/shipping webhook receivers
-- [events](components/events.md) — Kafka producer for order lifecycle events
-- [worker](components/worker.md) — long-running SQS consumer that processes order jobs
-- [clients](components/clients.md) — outbound REST clients to inventory, Stripe, and shipping
-- [storage](components/storage.md) — S3-backed order attachment storage
+- [api](components/api.md) — defines the Orders REST contract and stub webhook receivers.
+- [clients](components/clients.md) — wraps outbound inventory, Stripe, and shipping APIs.
+- [events](components/events.md) — publishes order lifecycle events to Kafka.
+- [queue](components/queue.md) — sends, receives, processes, and deletes SQS order jobs.
+- [storage](components/storage.md) — uploads, signs, and deletes S3 order attachments.
 
 ## Architecture diagram
 
 ```mermaid
 flowchart LR
-  callers([external callers]) -->|orders-api REST| api[api]
-
-  stripeExt[[Stripe]] -->|"webhook: POST /stripe"| api
-  shipExt[[Shipping provider]] -->|"webhook: POST /shipping"| api
-
-  clients[clients] -->|consumes inventory-api| invExt[[Inventory service]]
-  clients -->|consumes stripe-payments| stripeExt
-  clients -->|consumes shipping-provider-api| shipExt
-
-  events[events] -->|produces order-events| kafka[(Kafka)]
-
-  worker[worker] <-->|order-processing-queue| sqs[(SQS)]
-
-  storage[storage] <-->|order-attachments-bucket| s3[(S3 bucket)]
+  callers[HTTP callers] -->|orders-api| api[api]
+  stripe[Stripe] -->|stripe-api webhook| api
+  shipping[Shipping provider] -->|shipping-api webhook| api
+  clients[clients] -->|inventory-api| inventory[Inventory service]
+  clients -->|stripe-api REST| stripe
+  clients -->|shipping-api REST| shipping
+  events[events] -->|order-events| kafka[(Kafka)]
+  queue[queue] -->|order-processing-queue| sqs[(SQS)]
+  sqs -->|order-processing-queue| queue
+  storage[storage] -->|order-attachments-bucket| s3[(S3)]
+  s3 -->|order-attachments-bucket| storage
 ```
 
 [org diagram](../architecture.md#panopticon-test-child-b)
 
 ## Data flow
 
-The five components are not wired to each other in code (as the diagram above shows) — each one
-only connects to the external interface(s) it produces or consumes. `worker` and `storage` both
-write and read their respective queue/bucket; `api` is both a producer to external callers
-(`orders-api`) and a receiver of inbound webhook calls from Stripe and the shipping provider
-(`src/api/routes/webhooks.ts`).
-
-The modules above are not wired together in code: `package.json` declares a `dev` script
-(`ts-node src/index.ts`) and a `main` entry (`dist/index.js`) that would presumably assemble the
-Express app and mount `src/api/routes/*`, but `src/index.ts` does not exist anywhere in the repo
-or its git history, and no other file imports `src/clients/*`, `src/events/producer.ts`, or
-`src/storage/attachments.ts`. `src/api/routes/orders.ts` and `webhooks.ts` currently return
-hardcoded/stub responses and do not call any of those modules either.
-
-The one real wiring that does exist: `src/queue/worker.ts` imports `receiveOrders` and
-`deleteMessage` from `src/queue/processor.ts` and runs a long-poll loop that logs each job action
-(`process`, `fulfill`, `cancel`) without calling the inventory, Stripe, shipping, events, or
-storage modules.
-
-Each module's intended role, as declared by its own code:
-
-1. `api` exposes `orders-api` (`GET/POST /orders`, `GET/PATCH /orders/:id`,
-   `POST /orders/:id/cancel`) per `src/api/openapi.yaml`, and hosts webhook receivers
-   (`POST /stripe`, `POST /shipping`) for the `stripe-payments` and `shipping-provider-api`
-   interfaces that `clients` consumes on the outbound side.
-2. `events` publishes to the `order-events` Kafka topic via `publishOrderEvent`.
-3. `worker` long-polls an SQS queue (`ORDER_PROCESSING_QUEUE_URL`) for `OrderJob` messages and
-   processes them.
-4. `clients` and `storage` expose reusable functions (inventory checks/reservations, payment
-   intents, shipping quotes/shipments, S3 attachment upload/URL/delete) that no current caller
-   invokes.
+1. The `api` routes accept `orders-api` requests and return in-memory stub responses. Separate
+   `stripe-api` and `shipping-api` webhook routes acknowledge callbacks without processing them.
+2. The `clients` functions consume `inventory-api`, `stripe-api`, and `shipping-api` when called,
+   but no current component invokes them.
+3. The `events` publisher sends caller-provided lifecycle events to `order-events`; it is not
+   wired to the API or worker.
+4. The `queue` helper publishes jobs to and receives jobs from `order-processing-queue`. Its
+   worker logs each supported action and deletes successfully handled messages.
+5. The `storage` helpers write to and read or delete from `order-attachments-bucket`; no current
+   route invokes them.
 
 ## Dependencies
 
-- **Kafka** (`KAFKA_BROKERS`) — required to publish to `order-events`; see
-  [interfaces.md](interfaces.md).
-- **AWS SQS** (`ORDER_PROCESSING_QUEUE_URL`, `AWS_REGION`) — the `worker` component's job queue,
-  declared in `infra/sqs-queues.yaml` and indexed as `order-processing-queue`; see
-  [interfaces.md](interfaces.md) and [components/worker.md](components/worker.md).
-- **AWS S3** (`ORDER_ATTACHMENTS_BUCKET`, `AWS_REGION`) — attachment storage used by `storage`,
-  declared in `infra/s3-buckets.yaml` and indexed as `order-attachments-bucket`; see
-  [interfaces.md](interfaces.md) and [components/storage.md](components/storage.md).
-- **Inventory service** (`INVENTORY_API_URL`) — external REST dependency consumed by `clients`,
-  declared in `infra/services.yaml` and indexed as `inventory-api` (`owner: null` — owned outside
-  this repo); see [interfaces.md](interfaces.md).
-- **Stripe** (`STRIPE_SECRET_KEY`) — external payments API consumed by `clients` via the `stripe`
-  npm package, declared in `infra/services.yaml` and indexed as `stripe-payments` (`owner: null` —
-  third-party for the outbound `rest` entry). `api` also owns a `webhook`-type entry under the
-  same `stripe-payments` name for the inbound `POST /stripe` receiver; see
-  [interfaces.md](interfaces.md).
-- **Shipping provider** (`SHIPPING_API_URL`) — external REST dependency consumed by `clients`,
-  declared in `infra/services.yaml` and indexed as `shipping-provider-api` (`owner: null` —
-  third-party for the outbound `rest` entry). `api` also owns a `webhook`-type entry under the
-  same `shipping-provider-api` name for the inbound `POST /shipping` receiver; see
-  [interfaces.md](interfaces.md).
+- Express supplies the route abstractions for `orders-api` and the webhook receivers. The repo
+  does not include the application entry point needed to mount those routers.
+- The inventory service, Stripe, and the shipping provider back the three outbound interfaces
+  used by `clients`. Calls fail or throw when those services reject a request or cannot be reached.
+- Kafka backs `order-events`; publishing fails if a producer cannot connect or send.
+- AWS SQS backs `order-processing-queue`; queue failures prevent enqueue, receive, or deletion and
+  can leave messages available for retry.
+- AWS S3 backs `order-attachments-bucket`; S3 failures prevent attachment upload, URL signing, or
+  deletion. See [interfaces.md](interfaces.md) for the indexed interface evidence.

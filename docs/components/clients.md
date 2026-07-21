@@ -2,40 +2,38 @@
 
 ## Responsibility
 
-Owns outbound REST integration code for three external services: an inventory service, Stripe,
-and a shipping provider. Each file exports plain async functions wrapping `fetch` (inventory,
-shipping) or the `stripe` SDK (payments) — there is no shared HTTP client, retry logic, or base
-class among them. Out of scope: nothing in this repo currently calls any function in this
-directory (no route handler or worker wires these in).
+The clients component provides outbound functions for inventory checks and reservations, Stripe
+payment actions, and shipping quotes, creation, and tracking. It does not coordinate these calls
+into an order workflow, and no current module imports the client functions.
 
 ## Interfaces
 
-- Consumes `inventory-api`, `stripe-payments`, and `shipping-provider-api` (all `rest`), extracted
-  by the LLM fallback pass. Each is declared in `infra/services.yaml` (carrying its own
-  `# panopticon-interface <name>` hint) and consumed again by this component's own client file
-  (`inventory.ts`, `stripe.ts`, `shipping.ts`), matched to the same interface by its
-  environment-variable base URL (`INVENTORY_API_URL`, `SHIPPING_API_URL`) or, for Stripe, the SDK
-  it wraps. All three have `owner: null` in the index — they are external services this repo does
-  not own. See [interfaces.md](../interfaces.md).
+- Consumes `inventory-api` (`rest`) through the inventory HTTP client.
+- Consumes `stripe-api` (`rest`) through the Stripe SDK.
+- Consumes `shipping-api` (`rest`) through the shipping HTTP client.
+
+All three interfaces have unknown or externally managed owners in the local index. See
+[interfaces.md](../interfaces.md).
 
 ## Key modules
 
-- `src/clients/inventory.ts` — `checkInventory`, `reserveInventory`, `releaseInventory` against
-  `${INVENTORY_API_URL}/inventory/...`.
-- `src/clients/stripe.ts` — `createPaymentIntent`, `confirmPayment`, `refundPayment` via the
-  `stripe` npm SDK (`apiVersion: '2023-10-16'`).
-- `src/clients/shipping.ts` — `getQuotes`, `createShipment`, `trackShipment` against
-  `${SHIPPING_API_URL}/...`.
+- `src/clients/inventory.ts` — checks, reserves, and releases inventory with `fetch`.
+- `src/clients/stripe.ts` — creates and confirms payment intents and creates refunds with the
+  Stripe SDK.
+- `src/clients/shipping.ts` — requests quotes, creates shipments, and tracks shipments with
+  `fetch`.
 
 ## Configuration
 
-- `INVENTORY_API_URL` — required (non-null-asserted); inventory service base URL.
-- `STRIPE_SECRET_KEY` — required; Stripe secret API key.
-- `SHIPPING_API_URL` — required (non-null-asserted); shipping provider base URL.
+- `INVENTORY_API_URL` — required inventory service base URL.
+- `STRIPE_SECRET_KEY` — required Stripe API secret.
+- `SHIPPING_API_URL` — required shipping provider base URL.
+
+The source uses non-null assertions and performs no explicit startup validation.
 
 ## Failure modes
 
-`inventory.ts` and `shipping.ts` throw an `Error` with the HTTP status on any non-OK response
-(e.g. `Inventory check failed: 500`); callers must catch these explicitly since none of these
-functions retry or degrade gracefully. `stripe.ts` has no explicit error handling and surfaces
-whatever the `stripe` SDK throws directly (typically a `Stripe.errors.StripeError` subtype).
+The inventory and shipping clients throw an `Error` containing the HTTP status for non-successful
+responses; network errors propagate from `fetch`. Stripe SDK failures propagate unchanged. None
+of the clients implement retries, timeouts, logging, or fallback behavior, so callers own all
+recovery and observability.
