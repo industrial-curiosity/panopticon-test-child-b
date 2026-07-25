@@ -26,7 +26,7 @@ flowchart LR
   API --> Storage[order-attachments-bucket]
 ```
 
-[org diagram](../architecture.md#panopticon-test-child-b)
+[org diagram](https://github.com/industrial-curiosity/panopticon-test/blob/main/docs/architecture.md#panopticon-test-child-b)
 
 ## Data flow
 
