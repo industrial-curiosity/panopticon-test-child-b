@@ -1,4 +1,5 @@
 topics:
+  # panopticon-interface order-events
   - name: order-events
     partitions: 12
     replication_factor: 3

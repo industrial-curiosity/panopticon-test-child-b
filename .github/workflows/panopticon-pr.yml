@@ -1,0 +1,24 @@
+# Wired by Panopticon install.py — a thin reference to the shared workflow in the instance repo.
+# Re-run install.py to update. Secrets and variables are org-level; this repo configures none.
+name: Panopticon PR checks
+on:
+  pull_request:
+jobs:
+  panopticon:
+    uses: industrial-curiosity/panopticon-test/.github/workflows/panopticon-pr-openai.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      instance: industrial-curiosity/panopticon-test
+      workflow_ref: main
+      configuration_revision: b12569ba2998dc91f61e35677c02f25a406bdc8182784cc4fc609a227ba36d3e
+      configuration_names: '{"api_key":"PANOPTICON_OPENAI_API_KEY","instance_token":"PANOPTICON_INSTANCE_TOKEN","job_timeout_minutes":"PANOPTICON_LLM_JOB_TIMEOUT_MINUTES","max_attempts":"PANOPTICON_LLM_MAX_ATTEMPTS","max_correction_attempts":"PANOPTICON_LLM_MAX_CORRECTION_ATTEMPTS","model":"PANOPTICON_OPENAI_MODEL","timeout_seconds":"PANOPTICON_LLM_TIMEOUT_SECONDS"}'
+      model: ${{ vars.PANOPTICON_OPENAI_MODEL }}
+      timeout_seconds: ${{ vars.PANOPTICON_LLM_TIMEOUT_SECONDS }}
+      max_attempts: ${{ vars.PANOPTICON_LLM_MAX_ATTEMPTS }}
+      max_correction_attempts: ${{ vars.PANOPTICON_LLM_MAX_CORRECTION_ATTEMPTS }}
+      job_timeout_minutes: ${{ vars.PANOPTICON_LLM_JOB_TIMEOUT_MINUTES }}
+    secrets:
+      instance_token: ${{ secrets.PANOPTICON_INSTANCE_TOKEN }}
+      api_key: ${{ secrets.PANOPTICON_OPENAI_API_KEY }}

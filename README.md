@@ -1,5 +1,8 @@
 # ts-order-service
 
+[panopticon-test-child-b architecture](docs/architecture.md)
+[org architecture](https://github.com/industrial-curiosity/panopticon-test/blob/main/docs/architecture.md#panopticon-test-child-b)
+
 TypeScript order management service. Handles order creation, fulfillment, and lifecycle management, integrating with inventory, payments, and shipping providers.
 
 ## Repository structure

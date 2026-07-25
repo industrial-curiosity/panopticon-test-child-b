@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "interfaces": {
+    "inventory-api": [
+      {
+        "owner": null,
+        "type": "rest",
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/services.yaml"]}],
+        "producer": [],
+        "extracted_by": "llm"
+      }
+    ],
+    "order-attachments-bucket": [
+      {
+        "owner": {"repo": "panopticon-test-child-b", "component": "storage"},
+        "type": "s3",
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/s3-buckets.yaml"]}],
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/s3-buckets.yaml"]}],
+        "extracted_by": "llm"
+      }
+    ],
+    "order-events": [
+      {
+        "owner": {"repo": "panopticon-test-child-b", "component": "panopticon-test-child-b"},
+        "type": "kafka",
+        "consumer": [],
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/events/kafka-topics.yaml"]}]
+      }
+    ],
+    "order-processing-queue": [
+      {
+        "owner": {"repo": "panopticon-test-child-b", "component": "queue"},
+        "type": "sqs",
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/sqs-queues.yaml"]}],
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/sqs-queues.yaml"]}],
+        "extracted_by": "llm"
+      }
+    ],
+    "orders-api": [
+      {
+        "owner": {"repo": "panopticon-test-child-b", "component": "panopticon-test-child-b"},
+        "type": "rest",
+        "consumer": [],
+        "producer": [{"repo": "panopticon-test-child-b", "source_files": ["src/api/openapi.yaml"]}]
+      }
+    ],
+    "shipping-provider-api": [
+      {
+        "owner": null,
+        "type": "rest",
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/services.yaml"]}],
+        "producer": [],
+        "extracted_by": "llm"
+      }
+    ],
+    "stripe-payments": [
+      {
+        "owner": null,
+        "type": "rest",
+        "consumer": [{"repo": "panopticon-test-child-b", "source_files": ["infra/services.yaml"]}],
+        "producer": [],
+        "extracted_by": "llm"
+      }
+    ]
+  }
+}

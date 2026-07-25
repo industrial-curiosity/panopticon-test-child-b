@@ -1,5 +1,6 @@
 openapi: "3.0.3"
 info:
+  # panopticon-interface orders-api
   title: Orders API
   version: "1.0.0"
   description: REST API for order management, owned by ts-order-service.
