@@ -6,11 +6,10 @@ The queue component sends order jobs to SQS and runs a worker that long-polls, p
 
 ## Interfaces
 
-This component produces and consumes the owned `order-processing-queue` SQS interface. See [interfaces.md](../interfaces.md) for the index entry.
+This component consumes `order-processing-queue` through SQS. The repository does not include queue-creation configuration, so ownership is unknown in the local index; see [interfaces.md](../interfaces.md).
 
 ## Key modules
 
-- `infra/sqs-queues.yaml` — queue declaration and receive settings.
 - `src/queue/processor.ts` — SQS send, receive, and delete operations.
 - `src/queue/worker.ts` — long-poll processing loop.
 

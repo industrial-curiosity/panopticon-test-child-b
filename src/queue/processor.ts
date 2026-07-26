@@ -1,3 +1,4 @@
+// panopticon-interface order-processing-queue
 const QUEUE_URL = process.env.ORDER_PROCESSING_QUEUE_URL!;
 
 import { SQSClient, SendMessageCommand, ReceiveMessageCommand, DeleteMessageCommand } from '@aws-sdk/client-sqs';
