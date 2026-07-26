@@ -10,7 +10,7 @@ This component produces the owned `order-events` Kafka interface. See [interface
 
 ## Key modules
 
-- `src/events/kafka-topics.yaml` — topic declaration, partition count, replication factor, and retention policy.
+- `src/events/kafka-topics.yaml` — topic declaration with partition count, replication factor, and retention policy.
 - `src/events/producer.ts` — Kafka producer and `OrderEvent` payload type.
 
 ## Configuration

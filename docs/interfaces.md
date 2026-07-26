@@ -7,40 +7,38 @@
 
 - **Owner:** unknown or manually created infrastructure
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Consumed by this repo via:** `infra/services.yaml`
+- **Consumed by this repo via:** `src/clients/inventory.ts`
 
 ## `order-attachments-bucket` (s3)
 
-- **Owner:** panopticon-test-child-b / storage (this repo)
+- **Owner:** unknown or manually created infrastructure
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Produced by this repo via:** `infra/s3-buckets.yaml`
-- **Consumed by this repo via:** `infra/s3-buckets.yaml`
+- **Consumed by this repo via:** `src/storage/attachments.ts`
 
 ## `order-events` (kafka)
 
-- **Owner:** panopticon-test-child-b / panopticon-test-child-b (this repo)
-- **Produced by this repo via:** `src/events/kafka-topics.yaml`
+- **Owner:** panopticon-test-child-b / events (this repo)
+- **Produced by this repo via:** `src/events/kafka-topics.yaml`, `src/events/producer.ts`
 
 ## `order-processing-queue` (sqs)
 
-- **Owner:** panopticon-test-child-b / queue (this repo)
+- **Owner:** unknown or manually created infrastructure
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Produced by this repo via:** `infra/sqs-queues.yaml`
-- **Consumed by this repo via:** `infra/sqs-queues.yaml`
+- **Consumed by this repo via:** `src/queue/processor.ts`
 
 ## `orders-api` (rest)
 
-- **Owner:** panopticon-test-child-b / panopticon-test-child-b (this repo)
-- **Produced by this repo via:** `src/api/openapi.yaml`
+- **Owner:** panopticon-test-child-b / api (this repo)
+- **Produced by this repo via:** `src/api/openapi.yaml`, `src/api/routes/orders.ts`
 
 ## `shipping-provider-api` (rest)
 
 - **Owner:** unknown or manually created infrastructure
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Consumed by this repo via:** `infra/services.yaml`
+- **Consumed by this repo via:** `src/clients/shipping.ts`
 
 ## `stripe-payments` (rest)
 
 - **Owner:** unknown or manually created infrastructure
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Consumed by this repo via:** `infra/services.yaml`
+- **Consumed by this repo via:** `src/clients/stripe.ts`

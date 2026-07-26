@@ -3,14 +3,14 @@
 [panopticon-test-child-b architecture](docs/architecture.md)
 [org architecture](https://github.com/industrial-curiosity/panopticon-test/blob/main/docs/architecture.md#panopticon-test-child-b)
 
-TypeScript order management service. Handles order creation, fulfillment, and lifecycle management, integrating with inventory, payments, and shipping providers.
+TypeScript modules for order API routes, event publication, SQS order jobs, attachment storage, and inventory, payment, and shipping integrations. The repository does not include an application bootstrap that wires these modules together.
 
 ## Repository structure
 
-```
+```text
 src/
 ├── api/
-│   ├── openapi.yaml              # REST API spec
+│   ├── openapi.yaml              # REST API contract
 │   └── routes/
 │       ├── orders.ts
 │       └── webhooks.ts
@@ -19,7 +19,7 @@ src/
 │   ├── stripe.ts                 # Stripe payments client
 │   └── shipping.ts               # shipping provider client
 ├── events/
-│   ├── kafka-topics.yaml         # Kafka topic declarations
+│   ├── kafka-topics.yaml         # Kafka topic declaration
 │   └── producer.ts
 ├── queue/
 │   ├── processor.ts              # SQS producer + consumer
@@ -37,7 +37,7 @@ npm install
 ## Environment variables
 
 | Variable | Description |
-|---|---|
+| --- | --- |
 | `INVENTORY_API_URL` | Base URL for the inventory service |
 | `STRIPE_SECRET_KEY` | Stripe secret key |
 | `SHIPPING_API_URL` | Base URL for the shipping provider |
@@ -56,10 +56,10 @@ npm run worker  # start the SQS long-poll worker
 
 ## API
 
-Full spec in `src/api/openapi.yaml`. Key endpoints:
+The checked-in contract is `src/api/openapi.yaml`. Key endpoints:
 
 | Method | Path | Description |
-|---|---|---|
+| --- | --- | --- |
 | `GET` | `/orders` | List orders (filterable by status) |
 | `POST` | `/orders` | Create order |
 | `GET` | `/orders/:id` | Get order |

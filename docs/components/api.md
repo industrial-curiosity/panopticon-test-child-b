@@ -22,4 +22,4 @@ No API-specific configuration is visible in these modules. Express request handl
 
 ## Failure modes
 
-The visible handlers return simple JSON responses and do not implement persistence or external-call error handling. Missing server wiring prevents these handlers from being reachable in a running service.
+The visible handlers return simple JSON responses and do not implement persistence or external-call error handling. Missing server wiring prevents the handlers from being reachable in a running service.

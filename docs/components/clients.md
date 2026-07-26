@@ -16,8 +16,8 @@ This component consumes `inventory-api`, `stripe-payments`, and `shipping-provid
 
 ## Configuration
 
-`INVENTORY_API_URL`, `STRIPE_SECRET_KEY`, and `SHIPPING_API_URL` are required by the respective client modules.
+`INVENTORY_API_URL`, `STRIPE_SECRET_KEY`, and `SHIPPING_API_URL` are read by the respective client modules. The source uses non-null assertions and does not provide defaults or runtime validation.
 
 ## Failure modes
 
-Inventory and shipping functions throw when HTTP responses are unsuccessful. Stripe client calls surface SDK errors. Missing environment variables prevent valid remote client construction or requests.
+Inventory and shipping functions throw when HTTP responses are unsuccessful. Stripe client calls surface SDK errors. Missing or invalid environment values can make the corresponding remote operation fail.

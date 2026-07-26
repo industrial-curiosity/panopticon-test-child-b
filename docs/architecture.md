@@ -1,8 +1,10 @@
 # panopticon-test-child-b — architecture overview
 
-This repository contains the TypeScript artifacts for order lifecycle APIs, event publication, order-job processing, and attachment storage. It defines the public Orders API and the `order-events` Kafka topic while using configured inventory, Stripe, and shipping services.
+## Purpose
 
-The repository contains route modules and a worker, but no observable application bootstrap that mounts the routes. The API contract is nevertheless defined by the OpenAPI specification and route handlers.
+This repository contains TypeScript modules for an Orders REST API, order-event publication, SQS-backed order-job processing, attachment storage, and integrations with inventory, Stripe, and shipping services.
+
+The checked-in code does not include an application bootstrap that mounts the route modules or coordinates these modules into an order-processing workflow. The OpenAPI specification and route handlers define the visible API contract.
 
 ## Components
 
@@ -16,22 +18,21 @@ The repository contains route modules and a worker, but no observable applicatio
 
 ```mermaid
 flowchart LR
-  API[Orders API] --> Events[order-events]
-  API --> Queue[order-processing-queue]
-  API --> Clients[Service clients]
-  Clients --> Inventory[inventory-api]
+  API[API routes] --> OrdersAPI[orders-api]
+  Events[Event producer] --> OrderEvents[order-events]
+  Queue[Queue processor] --> OrderQueue[order-processing-queue]
+  Storage[Attachment storage] --> Attachments[order-attachments-bucket]
+  Clients[Service clients] --> Inventory[inventory-api]
   Clients --> Stripe[stripe-payments]
   Clients --> Shipping[shipping-provider-api]
-  Queue --> Worker[Order worker]
-  API --> Storage[order-attachments-bucket]
 ```
 
 [org diagram](https://github.com/industrial-curiosity/panopticon-test/blob/main/docs/architecture.md#panopticon-test-child-b)
 
 ## Data flow
 
-The Orders API specifies create, retrieve, update, and cancel operations. Order changes can be published to `order-events`; background jobs are sent to and received from `order-processing-queue`. Client modules call `inventory-api`, `stripe-payments`, and `shipping-provider-api`, while attachment functions store order-scoped objects in `order-attachments-bucket`.
+The API component exposes order and webhook route modules and declares `orders-api`. The events component publishes `order-events`. Independently, the queue component sends to and receives from `order-processing-queue`; the storage component manages objects in `order-attachments-bucket`; and client modules call `inventory-api`, `stripe-payments`, and `shipping-provider-api`. The source does not show orchestration between those components.
 
 ## Dependencies
 
-This service consumes the inventory, Stripe, and shipping REST services. It also requires Kafka, SQS, and S3 through their respective client libraries and configured connection values. If those systems are unavailable, calls, event publication, queue processing, or attachment operations fail in the corresponding module; see [interfaces.md](interfaces.md) for the indexed contracts.
+This repository consumes the inventory, Stripe, and shipping REST services, SQS queue, and S3 bucket represented in the local index. It also connects to Kafka to publish events. If those systems are unavailable, the corresponding client call, event publication, queue operation, or attachment operation fails; see [interfaces.md](interfaces.md) for the indexed contracts.

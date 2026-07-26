@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 
+// panopticon-interface stripe-payments
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' });
 
 export async function createPaymentIntent(amount: number, currency = 'usd'): Promise<Stripe.PaymentIntent> {

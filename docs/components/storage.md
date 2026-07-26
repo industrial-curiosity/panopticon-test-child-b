@@ -6,11 +6,10 @@ The storage component manages order attachment objects in S3. It uploads objects
 
 ## Interfaces
 
-This component produces and consumes the owned `order-attachments-bucket` S3 interface. See [interfaces.md](../interfaces.md) for the index entry.
+This component consumes `order-attachments-bucket` through S3. The repository does not include bucket-creation configuration, so ownership is unknown in the local index; see [interfaces.md](../interfaces.md).
 
 ## Key modules
 
-- `infra/s3-buckets.yaml` — bucket declaration and seven-day lifecycle expiration.
 - `src/storage/attachments.ts` — S3 upload, signed URL, and delete functions.
 
 ## Configuration
