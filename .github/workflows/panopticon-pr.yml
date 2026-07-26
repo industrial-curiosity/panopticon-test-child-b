@@ -1,5 +1,5 @@
 # Wired by Panopticon install.py — a thin reference to the shared workflow in the instance repo.
-# Re-run install.py to update. Secrets and variables are org-level; this repo configures none.
+# Re-run install.py or panopticon.sync to update. Secrets and variables are org-level; this repo configures none.
 name: Panopticon PR checks
 on:
   pull_request:
