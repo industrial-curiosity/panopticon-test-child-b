@@ -7,13 +7,14 @@
 
 - **Owner:** unknown or manually created infrastructure
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Consumed by this repo via:** `src/clients/inventory.ts`
+- **Consumed by this repo via:** `infra/services.yaml`, `src/clients/inventory.ts`
 
 ## `order-attachments-bucket` (s3)
 
-- **Owner:** unknown or manually created infrastructure
+- **Owner:** panopticon-test-child-b / storage (this repo)
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Consumed by this repo via:** `src/storage/attachments.ts`
+- **Produced by this repo via:** `infra/s3-buckets.yaml`, `src/storage/attachments.ts`
+- **Consumed by this repo via:** `infra/s3-buckets.yaml`, `src/storage/attachments.ts`
 
 ## `order-events` (kafka)
 
@@ -22,9 +23,10 @@
 
 ## `order-processing-queue` (sqs)
 
-- **Owner:** unknown or manually created infrastructure
+- **Owner:** panopticon-test-child-b / queue (this repo)
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Consumed by this repo via:** `src/queue/processor.ts`
+- **Produced by this repo via:** `infra/sqs-queues.yaml`, `src/queue/processor.ts`
+- **Consumed by this repo via:** `infra/sqs-queues.yaml`, `src/queue/processor.ts`, `src/queue/worker.ts`
 
 ## `orders-api` (rest)
 
@@ -35,10 +37,22 @@
 
 - **Owner:** unknown or manually created infrastructure
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Consumed by this repo via:** `src/clients/shipping.ts`
+- **Consumed by this repo via:** `infra/services.yaml`, `src/clients/shipping.ts`
+
+## `shipping-provider-api` (webhook)
+
+- **Owner:** panopticon-test-child-b / api (this repo)
+- **Provenance:** extracted by LLM (no deterministic parser yet)
+- **Produced by this repo via:** `src/api/routes/webhooks.ts`
 
 ## `stripe-payments` (rest)
 
 - **Owner:** unknown or manually created infrastructure
 - **Provenance:** extracted by LLM (no deterministic parser yet)
-- **Consumed by this repo via:** `src/clients/stripe.ts`
+- **Consumed by this repo via:** `infra/services.yaml`, `src/clients/stripe.ts`
+
+## `stripe-payments` (webhook)
+
+- **Owner:** panopticon-test-child-b / api (this repo)
+- **Provenance:** extracted by LLM (no deterministic parser yet)
+- **Produced by this repo via:** `src/api/routes/webhooks.ts`

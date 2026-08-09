@@ -26,6 +26,10 @@ src/
 │   └── worker.ts
 └── storage/
     └── attachments.ts            # S3 order attachments
+infra/
+├── services.yaml                # consumed services (inventory, stripe, shipping)
+├── s3-buckets.yaml              # order-attachments-bucket
+└── sqs-queues.yaml              # order-processing-queue
 ```
 
 ## Setup
