@@ -29,7 +29,7 @@ components that no longer exist.
 
 1. **Follow the templates.** Every generated file keeps its template's heading structure; fill
    each section or state explicitly why it does not apply. Do not invent extra top-level
-   sections.
+   sections, except for the template's managed `## Panopticon analysis scope` section.
 2. **Never write `interfaces.md` yourself.** It is rendered from the local index so it can never
    disagree with it. After the index changes, run:
 
@@ -51,8 +51,22 @@ components that no longer exist.
    python3 -m panopticon.docs render --repo-name <repo> --component api --component worker ...
    ```
 
-6. **Keep the index current first.** Interface changes go into `panopticon/index.json` (see the
-   panopticon-index-schema skill and the panopticon-interface-naming skill for canonical names),
+6. **Load organization context and keep the index current first.** Before inferring or refreshing
+   interface names, load the configured instance's compiled interface index. Prefer the instance
+   checkout already available to the workflow; for a local run without a checkout, use the
+   configured instance identity and authenticated access:
+
+   ```bash
+   python3 -m panopticon.interface_lookup --instance <instance> \
+     --instance-root <instance-checkout> --output /tmp/panopticon-instance-interfaces.json
+   ```
+
+   Omit `--instance-root` when no checkout is available. A missing index in a fresh instance is an
+   empty context; an existing invalid or unreachable index stops the naming preflight with its
+   recovery instruction. Use that context with the `panopticon-interface-naming` skill, write any
+   reviewed naming judgments as source/configuration hints, and regenerate `panopticon/index.json`.
+   Only then render/update the four documentation layers. Interface changes go into
+   `panopticon/index.json` (see the panopticon-index-schema and panopticon-interface-naming skills),
    then docs are rendered/updated. Validate before finishing:
 
    ```bash
@@ -65,8 +79,10 @@ components that no longer exist.
    available; default `mermaid` when absent or no instance checkout is available locally) —
    depicting this repo's components and how they relate, same "ground every statement in the
    code" discipline as the rest of this layer. Do not invent components or relationships that
-   aren't in the code. Directly below the fenced block, add a markdown link back to this repo's
-   section in the org diagram. Run the command below and use its printed URL verbatim:
+   aren't in the code. Directly below the fenced block, retain the relative
+   `[Panopticon analysis scope](operations.md#panopticon-analysis-scope)` link and add a markdown
+   link back to this repo's section in the org diagram. Run the command below and use its printed
+   URL verbatim:
 
    ```bash
    python3 -m panopticon.org_diagram_link
