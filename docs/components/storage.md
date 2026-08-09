@@ -2,15 +2,16 @@
 
 ## Responsibility
 
-The storage component manages order attachment objects in S3. It uploads objects, produces signed read URLs, and deletes objects by key.
+The storage component declares the `order-attachments-bucket` S3 bucket in `infra/s3-buckets.yaml` and manages order attachment objects in it: uploading objects, producing signed read URLs, and deleting objects by key.
 
 ## Interfaces
 
-This component consumes `order-attachments-bucket` through S3. The repository does not include bucket-creation configuration, so ownership is unknown in the local index; see [interfaces.md](../interfaces.md).
+This component owns and both produces and consumes `order-attachments-bucket` (S3): `infra/s3-buckets.yaml` declares the bucket and `src/storage/attachments.ts` uses it. See [interfaces.md](../interfaces.md) for the indexed source files.
 
 ## Key modules
 
-- `src/storage/attachments.ts` — S3 upload, signed URL, and delete functions.
+- `infra/s3-buckets.yaml` — bucket declaration with versioning and lifecycle settings.
+- `src/storage/attachments.ts` — `uploadAttachment`, `getAttachmentUrl`, and `deleteAttachment` via the S3 SDK and request presigner.
 
 ## Configuration
 
@@ -18,4 +19,4 @@ This component consumes `order-attachments-bucket` through S3. The repository do
 
 ## Failure modes
 
-S3 client errors reject attachment operations. Missing bucket or region configuration prevents operations from targeting the intended storage location.
+S3 client errors reject the attachment operations. Missing bucket or region configuration prevents operations from targeting the intended storage location. Signed URLs default to a one-hour expiry when no explicit lifetime is supplied.
