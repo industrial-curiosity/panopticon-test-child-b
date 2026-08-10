@@ -1,0 +1,28 @@
+# Wired by Panopticon install.py — a thin reference to the shared workflow in the instance repo.
+# Re-run install.py or panopticon.sync to update. Secrets and variables are org-level; this repo configures none.
+name: Panopticon PR checks
+on:
+  pull_request:
+jobs:
+  panopticon:
+    uses: industrial-curiosity/panopticon-demo/.github/workflows/panopticon-pr-litellm.yml@main
+# Optional provider variables: ["timeout_seconds","max_attempts","max_correction_attempts","job_timeout_minutes"]
+# Instance provider defaults: {}
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      instance: industrial-curiosity/panopticon-demo
+      workflow_ref: main
+      configuration_revision: 70711e5b7397a01eeda36101e43ece5c861ce023ba0e70c5d4a3cf3b6e5c7a85
+      configuration_names: '{"api_key":"PANOPTICON_LLM_API_KEY","endpoint":"PANOPTICON_LLM_ENDPOINT","instance_token":"PANOPTICON_INSTANCE_TOKEN_DEMO","job_timeout_minutes":"PANOPTICON_LLM_JOB_TIMEOUT_MINUTES","max_attempts":"PANOPTICON_LLM_MAX_ATTEMPTS","max_correction_attempts":"PANOPTICON_LLM_MAX_CORRECTION_ATTEMPTS","model":"PANOPTICON_LLM_MODEL","timeout_seconds":"PANOPTICON_LLM_TIMEOUT_SECONDS"}'
+      model: ${{ vars.PANOPTICON_LLM_MODEL }}
+      timeout_seconds: ${{ vars.PANOPTICON_LLM_TIMEOUT_SECONDS }}
+      max_attempts: ${{ vars.PANOPTICON_LLM_MAX_ATTEMPTS }}
+      max_correction_attempts: ${{ vars.PANOPTICON_LLM_MAX_CORRECTION_ATTEMPTS }}
+      job_timeout_minutes: ${{ vars.PANOPTICON_LLM_JOB_TIMEOUT_MINUTES }}
+      job_timeout_source: ${{ vars.PANOPTICON_LLM_JOB_TIMEOUT_MINUTES && 'organization variable' || 'workflow default' }}
+      endpoint: ${{ vars.PANOPTICON_LLM_ENDPOINT }}
+    secrets:
+      instance_token: ${{ secrets.PANOPTICON_INSTANCE_TOKEN_DEMO }}
+      api_key: ${{ secrets.PANOPTICON_LLM_API_KEY }}

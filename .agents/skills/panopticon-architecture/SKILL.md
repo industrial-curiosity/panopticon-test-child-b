@@ -1,0 +1,149 @@
+---
+name: panopticon-architecture
+description: >-
+  Core architecture ground rules for the Panopticon project. Apply whenever
+  designing, speccing, implementing, or reviewing anything in this repo —
+  GitHub Actions workflows, Python tooling, agent skills, OpenSpec artifacts,
+  or documentation — even if the user doesn't mention architecture. These
+  decisions are settled; do not re-litigate them in proposals or designs.
+---
+
+# Panopticon architecture ground rules
+
+## Repository roles
+
+- **Template repo** (this repo, public): Python tooling, deterministic parsers,
+  shared workflows, agent skills. Parsers grown in instances are contributed
+  back upstream here.
+- **Instance repo** ("master", private fork per org): holds `docs/{repo}/`
+  copies, per-repo interface index shards, the compiled org-wide index, and
+  org configuration (gating mode, workflow ref policy).
+- **Child repos**: each org repo initialized by Panopticon. Owns its local
+  docs and local interface index; is the authoritative source for interfaces
+  it owns.
+
+## Hybrid execution model
+
+Deterministic Python does everything structural: init checks (the child
+repo's `panopticon/config.json` is the initialization flag and holds repo
+settings), index merge/compile, typed parsers, conflict detection. LLM agents are used only
+where judgment is required: doc generation, doc-vs-code drift detection,
+interface extraction where no deterministic parser exists, and interface
+naming/matching where normalization rules are inconclusive. Never design an
+LLM step for work a script can do deterministically.
+
+Developers keep their repo's docs and local index up to date with their own
+agents; CI verifies currency and fails loudly and clearly when they are
+stale, so the developer knows exactly what to fix. CI agent evaluations are
+scoped to what changed plus the minimal context required to understand it —
+full-repo work (initial doc generation, full indexing) happens locally via
+the user's agent.
+
+## Provider-agnostic agents
+
+An instance explicitly selects one built-in CI provider contract through the
+fixed-provider `Configure Panopticon — LiteLLM`, `Configure Panopticon —
+OpenAI`, or `Configure Panopticon — Bedrock` workflow; the template has no
+implicit provider. Those manual entrypoints expose only provider-relevant
+Actions names and share one local
+configuration action for validation and persistence.
+LiteLLM-compatible HTTP, direct OpenAI Chat Completions at the fixed
+`https://api.openai.com/v1` endpoint, and native Bedrock Converse through GitHub
+OIDC are separate reusable workflow entrypoints. The trusted provider registry
+owns their workflow paths, permissions, logical inputs, and default Actions
+names; instance configuration may rename secrets and variables but may not
+supply an arbitrary workflow path. The OpenAI provider has no configurable
+endpoint. Child bootstrap maps configured names explicitly and never uses
+`secrets: inherit`.
+
+The shared prompting, validation, correction, and retry surface remains
+provider-neutral. Provider-specific authentication and transport stay inside
+the selected adapter/workflow. All local actions — initialization, doc updates,
+interface indexing — run through the user's preferred AI agent with the bundled
+skills and need no Panopticon LLM secrets. Missing, stale, unreachable, or
+incapable provider configuration fails loudly with exact instance-configuration
+or child-bootstrap recovery commands; it never skips or falls back.
+Shared CLI parsers may expose a consistent option surface across providers, but
+must reject a non-empty provider-specific option at the CLI boundary with a
+message naming the supported provider before generic configuration or writes.
+
+Generated caller compatibility is owned by the caller renderer. Hash the
+semantic reusable-workflow target, caller permissions, mappings, secrets, and
+caller-supplied values, while keeping shared-workflow fallbacks outside the
+caller ABI whenever GitHub can apply them before job steps run. Runtime-only
+fallback changes should not require child re-bootstrap; invalidate callers
+only when their rendered invocation can no longer be accepted safely.
+Reusable workflow contracts SHALL declare only caller inputs consumed by the
+workflow body, except for an explicitly time-bounded migration shim that is
+declared optional, ignored, and covered by dispatch-level compatibility tests;
+generated callers SHALL omit that shim. Renderer loading boundaries SHALL convert ordinary
+renderer exceptions into the caller-renderer diagnostic before any managed
+resource write; bootstrap renderer retrieval may fall back only for a 404 or
+connection-level failure, never for authentication or other API failures.
+Instance-owned operational controls SHALL resolve at the instance or reusable-
+workflow boundary so administrators can change them without requiring child
+repository maintainers to regenerate or commit callers. When a platform
+evaluates a setting before instance steps run, use the organization-level
+control exposed to the reusable workflow and keep legacy instance fields
+migration-only rather than advertising a dead fallback.
+Load, validate, and render the caller before writing any managed sync resource;
+reuse that validated render for the write so renderer failures remain controlled
+and cannot occur after partial sync.
+
+When fetched Python modules execute inside a synthetic package with no filesystem
+fallback, register direct dependencies in topological order before evaluating
+modules that import them at module scope. Regression fixtures must use the real
+module source for those imports; dependency-free fakes can hide ordering bugs.
+
+## Sync and auth model
+
+- Child repos **push** to the instance repo: on merge to main, docs are copied
+  to `docs/{repo}/` and the repo's index shard is replaced, then the compiled
+  index is rebuilt. Direct push, no PR.
+- When the final merge produces conflict entries, open issues in **both** the
+  instance repo and the child repo — at most one open conflict issue per
+  child repo in each repository; later merges update it.
+- PR workflows run a **pre-merge simulation** against the instance repo's
+  compiled index and report detected conflicts as PR comments.
+- PR workflows also push the PR's docs and index state to a matching branch
+  named `{repo}/{branch}` in the instance repo, so in-flight branch state is
+  visible org-wide. Only merges to main touch the instance repo's default
+  branch.
+- The default CI `GITHUB_TOKEN` cannot reach the private instance repo. A
+  configurable org-level token secret (`PANOPTICON_INSTANCE_TOKEN` by default)
+  grants instance-repo read and write (PR simulation, branch pushes, merge push).
+- All Panopticon secrets are org-level. Child repos never configure per-repo
+  secrets or env vars — generated callers explicitly map the instance-selected
+  org names to canonical reusable-workflow inputs and secrets.
+- An automated child resource sync may update only its open automation pull
+  request. Once that pull request is merged or closed, a later sync creates a
+  new one.
+
+## Index lifecycle
+
+The owning repo is the source of truth. Humans may hot-fix the instance
+repo's index, but such edits are temporary: the owning repo's next merge
+overwrites them. Never design tooling that treats manual instance-index edits
+as durable.
+
+## Gating
+
+Default outcomes per check type: initialization and doc-drift checks fail
+the workflow when they detect a problem — the developer must know what to
+fix. Interface-conflict checks are advisory by default because LLM-extracted
+entries can false-positive. Orgs may adjust each check type between advisory
+and blocking via instance configuration. Never hardcode outcomes; read the
+gating config.
+
+## Parser coverage growth
+
+When the LLM extracts an interface that no deterministic parser handles, log
+a warning and recommend generating a parser in the workflow summary. Parsers
+are written to be upstreamable to the template repo (see
+[panopticon-python-tooling](../panopticon-python-tooling/SKILL.md)).
+
+## Documentation layers
+
+Autogenerated per-repo docs comprise four layers: architecture overview,
+per-component docs, interface docs (human-readable rendering of index
+entries), and operational docs.
