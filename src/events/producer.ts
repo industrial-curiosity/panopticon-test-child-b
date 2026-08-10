@@ -12,6 +12,7 @@ export interface OrderEvent {
   payload: Record<string, unknown>;
 }
 
+// panopticon-interface order-events
 export async function publishOrderEvent(event: OrderEvent): Promise<void> {
   await producer.connect();
   await producer.send({

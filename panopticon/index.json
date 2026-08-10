@@ -1,0 +1,183 @@
+{
+  "interfaces": {
+    "inventory-api": [
+      {
+        "consumer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "infra/services.yaml",
+              "src/clients/inventory.ts"
+            ]
+          }
+        ],
+        "owner": null,
+        "producer": [],
+        "type": "rest"
+      }
+    ],
+    "order-attachments-bucket": [
+      {
+        "consumer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "src/storage/attachments.ts"
+            ]
+          }
+        ],
+        "owner": {
+          "component": "storage",
+          "repo": "panopticon-test-child-b"
+        },
+        "producer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "infra/s3-buckets.yaml"
+            ]
+          }
+        ],
+        "type": "s3"
+      }
+    ],
+    "order-events": [
+      {
+        "consumer": [],
+        "owner": {
+          "component": "event-producer",
+          "repo": "panopticon-test-child-b"
+        },
+        "producer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "src/events/kafka-topics.yaml",
+              "src/events/producer.ts"
+            ]
+          }
+        ],
+        "type": "kafka"
+      }
+    ],
+    "order-processing-queue": [
+      {
+        "consumer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "src/queue/processor.ts",
+              "src/queue/worker.ts"
+            ]
+          }
+        ],
+        "owner": {
+          "component": "worker",
+          "repo": "panopticon-test-child-b"
+        },
+        "producer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "infra/sqs-queues.yaml"
+            ]
+          }
+        ],
+        "type": "sqs"
+      }
+    ],
+    "orders-api": [
+      {
+        "consumer": [],
+        "owner": {
+          "component": "api",
+          "repo": "panopticon-test-child-b"
+        },
+        "producer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "src/api/openapi.yaml",
+              "src/api/routes/orders.ts"
+            ]
+          }
+        ],
+        "type": "rest"
+      }
+    ],
+    "shipping-api": [
+      {
+        "consumer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "infra/services.yaml",
+              "src/clients/shipping.ts"
+            ]
+          }
+        ],
+        "owner": null,
+        "producer": [],
+        "type": "rest"
+      }
+    ],
+    "shipping-webhooks": [
+      {
+        "consumer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "src/api/routes/webhooks.ts"
+            ]
+          }
+        ],
+        "owner": null,
+        "producer": [],
+        "type": "webhook"
+      }
+    ],
+    "stripe-api": [
+      {
+        "consumer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "infra/services.yaml",
+              "src/clients/stripe.ts"
+            ]
+          }
+        ],
+        "owner": null,
+        "producer": [],
+        "type": "rest"
+      }
+    ],
+    "stripe-webhooks": [
+      {
+        "consumer": [
+          {
+            "extracted_by": "llm",
+            "repo": "panopticon-test-child-b",
+            "source_files": [
+              "src/api/routes/webhooks.ts"
+            ]
+          }
+        ],
+        "owner": null,
+        "producer": [],
+        "type": "webhook"
+      }
+    ]
+  },
+  "schema_version": 1
+}
