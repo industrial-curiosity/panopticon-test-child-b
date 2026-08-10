@@ -15,6 +15,7 @@ export interface OrderEvent {
 export async function publishOrderEvent(event: OrderEvent): Promise<void> {
   await producer.connect();
   await producer.send({
+    // panopticon-interface order-events
     topic: 'order-events',
     messages: [{ key: event.orderId, value: JSON.stringify(event) }],
   });
