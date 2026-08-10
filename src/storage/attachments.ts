@@ -1,4 +1,3 @@
-// panopticon-interface order-attachments-bucket
 const BUCKET = process.env.ORDER_ATTACHMENTS_BUCKET!;
 
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';

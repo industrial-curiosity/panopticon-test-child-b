@@ -1,4 +1,3 @@
-// panopticon-interface inventory-api
 const INVENTORY_BASE = process.env.INVENTORY_API_URL!;
 
 export interface InventoryItem {
