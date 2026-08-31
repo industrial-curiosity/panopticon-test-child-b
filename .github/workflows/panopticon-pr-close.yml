@@ -6,6 +6,6 @@ on:
     types: [closed]
 jobs:
   panopticon:
-    uses: industrial-curiosity/panopticon-demo/.github/workflows/panopticon-pr-close.yml@main
+    uses: industrial-curiosity/panopticon-test/.github/workflows/panopticon-pr-close.yml@main
     secrets:
-      instance_token: ${{ secrets.PANOPTICON_INSTANCE_TOKEN_DEMO }}
+      instance_token: ${{ secrets.PANOPTICON_INSTANCE_TOKEN }}

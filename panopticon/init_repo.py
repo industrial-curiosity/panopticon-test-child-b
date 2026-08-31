@@ -32,6 +32,7 @@ from pathlib import Path
 
 from .config import load_repo_config, save_repo_config
 from .docs import validate_docs
+from .features import FeatureConfigError, load_receipt, validate_enabled_features
 from .index import KIND_LOCAL, IndexValidationError, load_index
 
 _EXISTING_DOC_DIRS = ("docs", "doc", "documentation")
@@ -106,6 +107,23 @@ def validate_child(child_root, repo_name, docs_location):
     return problems
 
 
+def validate_feature_state(child_root, docs_location):
+    """Validate enabled feature artifacts from managed bootstrap state."""
+    try:
+        receipt = load_receipt(child_root)
+    except FeatureConfigError as exc:
+        return [f"feature receipt: {exc}"], True
+    if receipt is None:
+        return [], False
+    try:
+        findings, blocking = validate_enabled_features(
+            receipt["modes"], root=child_root, docs_root=Path(child_root) / docs_location
+        )
+    except FeatureConfigError as exc:
+        return [f"feature validation: {exc}"], True
+    return findings, blocking
+
+
 def _report_item(where, issue, next_step):
     return (
         f"- **Where:** `{where}`\n"
@@ -115,7 +133,7 @@ def _report_item(where, issue, next_step):
 
 
 def format_initialization_report(code, child_root, instance, docs_location, child_problems,
-                                 org_messages, branch_warning=None):
+                                 org_messages, branch_warning=None, feature_findings=()):
     """Render the durable, secret-safe outcome of one finalization attempt."""
     if code:
         result = (
@@ -140,6 +158,17 @@ def format_initialization_report(code, child_root, instance, docs_location, chil
         )
         for problem in child_problems
     ]
+    for finding in feature_findings:
+        feature_label, _, detail = finding.partition(": ")
+        feature_id, _, mode = feature_label.partition(" (")
+        mode = mode.rstrip(")")
+        child_items.append(_report_item(
+            f"feature `{feature_id}`",
+            f"{detail or finding} ({mode} mode)",
+            f"Follow `.agents/skills/panopticon-feature-{feature_id}/SKILL.md`, repair the finding, "
+            f"then run `python3 -m panopticon.features check --root . --docs-root {docs_location}` "
+            f"and rerun {rerun}.",
+        ))
     org_items = [
         _report_item(
             f"GitHub organization settings for {instance.split('/')[0]}",
@@ -417,6 +446,9 @@ def initialize(child_root, repo_name, instance, docs_location=None, workflow_ref
     )
 
     problems = validate_child(child_root, repo_name, docs_location)
+    feature_findings, feature_blocking = validate_feature_state(child_root, docs_location)
+    advisory_feature_findings = [] if feature_blocking else feature_findings
+    problems.extend(feature_findings if feature_blocking else [])
     if problems:
         messages.append("initialization requirements not met — panopticon/config.json NOT written:")
         messages.extend(f"  - {p}" for p in problems)
@@ -433,7 +465,7 @@ def initialize(child_root, repo_name, instance, docs_location=None, workflow_ref
 
     org_messages = []
     if not skip_secret_check:
-        org_messages = verify_org_secrets(instance.split("/")[0], child_root, runner=runner)
+        org_messages.extend(verify_org_secrets(instance.split("/")[0], child_root, runner=runner))
         messages.extend(org_messages)
 
     config = {
@@ -459,6 +491,7 @@ def initialize(child_root, repo_name, instance, docs_location=None, workflow_ref
         child_root,
         format_initialization_report(
             0, child_root, instance, docs_location, [], org_messages, branch_warning,
+            feature_findings=advisory_feature_findings,
         ),
     )
     save_repo_config(config, repo_root=child_root)

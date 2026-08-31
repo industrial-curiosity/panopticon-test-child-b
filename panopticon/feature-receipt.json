@@ -1,0 +1,28 @@
+{
+  "artifacts": [
+    {
+      "destination": ".agents/skills/panopticon-feature-okf/SKILL.md",
+      "feature": "okf"
+    },
+    {
+      "destination": ".agents/skills/panopticon-feature-okf/templates/component.md",
+      "feature": "okf"
+    },
+    {
+      "destination": ".agents/skills/panopticon-feature-okf/templates/interface.md",
+      "feature": "okf"
+    },
+    {
+      "destination": "panopticon/feature_okf.py",
+      "feature": "okf"
+    }
+  ],
+  "features": {
+    "okf": {
+      "mode": "advisory"
+    }
+  },
+  "pending_removals": [],
+  "registry_revision": "0e0610dfa605cb2f1f28d041f586542c258b2f1edfd24499c5b8351938abddc9",
+  "schema_version": 1
+}

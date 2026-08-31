@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
 jobs:
   panopticon:
-    uses: industrial-curiosity/panopticon-demo/.github/workflows/shared-child-resource-sync.yml@main
+    uses: industrial-curiosity/panopticon-test/.github/workflows/shared-child-resource-sync.yml@main
     permissions:
       contents: write
       pull-requests: write
     secrets:
-      instance_token: ${{ secrets.PANOPTICON_INSTANCE_TOKEN_DEMO }}
+      instance_token: ${{ secrets.PANOPTICON_INSTANCE_TOKEN }}
