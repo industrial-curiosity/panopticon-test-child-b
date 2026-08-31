@@ -1,3 +1,7 @@
+---
+type: operations
+---
+
 # panopticon-test-child-b — operations
 
 <!-- panopticon-analysis-scope:start -->

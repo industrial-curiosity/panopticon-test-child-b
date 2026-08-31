@@ -1,3 +1,7 @@
+---
+type: architecture
+---
+
 # panopticon-test-child-b — architecture overview
 
 ## Purpose

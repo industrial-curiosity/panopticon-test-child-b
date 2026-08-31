@@ -1,0 +1,9 @@
+[
+  "interface-naming",
+  "interface-extraction",
+  "dependency-naming",
+  "dependency-extraction",
+  "doc-generation",
+  "feature-remediation",
+  "finalization"
+]

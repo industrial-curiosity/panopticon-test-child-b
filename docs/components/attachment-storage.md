@@ -1,3 +1,7 @@
+---
+type: component
+---
+
 # attachment-storage
 
 ## Responsibility
