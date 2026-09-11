@@ -1,3 +1,7 @@
+---
+type: component
+---
+
 # order-processing-worker
 
 ## Responsibility

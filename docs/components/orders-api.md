@@ -1,3 +1,7 @@
+---
+type: component
+---
+
 # orders-api
 
 ## Responsibility

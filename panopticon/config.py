@@ -70,9 +70,11 @@ Defaults to an empty list when omitted, validated the same way as ``protected_pa
 """
 
 import json
+import hashlib
 from pathlib import Path
 
 from . import SCHEMA_VERSION
+from .features import FeatureConfigError, load_manifest, validate_feature_config
 from .providers import INSTANCE_CREDENTIAL_ACTION, resolve_provider_contract
 
 ORG_CONFIG_BASENAME = "panopticon.config.json"
@@ -106,6 +108,11 @@ PROTECTED_CONFIG_FILES = {
     DIAGRAM_CONFIG_BASENAME: {"format": DEFAULT_DIAGRAM_FORMAT},
 }
 GENERATED_PROTECTED_PATHS = ("docs/architecture.md",)
+PROTECTED_PATH_CLASS_REASONS = {
+    "generated": "Template-generated instance output is rebuilt by Panopticon merge tooling.",
+    "provider": "Provider-derived protection is required by the trusted provider contract.",
+    "organization": "Organization-declared protection preserves a reviewed instance customization.",
+}
 
 
 class ConfigError(Exception):
@@ -134,6 +141,24 @@ def derive_protected_paths(org_config):
     """Return deduplicated runtime merge-protected paths in report order."""
     groups = derive_protected_path_groups(org_config)
     return tuple(dict.fromkeys(path for paths in groups.values() for path in paths))
+
+
+def protected_path_metadata(org_config):
+    """Return protected paths with stable ownership classes and human-readable reasons."""
+    groups = derive_protected_path_groups(org_config)
+    return tuple(
+        {
+            "path": path,
+            "class": {
+                "generated": "template-generated",
+                "provider": "provider-derived",
+                "organization": "organization-declared",
+            }[group],
+            "reason": PROTECTED_PATH_CLASS_REASONS[group],
+        }
+        for group, paths in groups.items()
+        for path in paths
+    )
 
 
 def _load_json(path, description):
@@ -169,16 +194,39 @@ def load_org_config(instance_root="."):
         isinstance(r, str) and r for r in internal_registries
     ):
         raise ConfigError("org config: 'internal_registries' must be a list of non-empty host/URL strings")
+    try:
+        manifest = load_manifest(instance_root)
+    except FeatureConfigError as exc:
+        if doc.get("features"):
+            raise ConfigError(str(exc)) from exc
+        manifest = {"schema_version": 1, "features": {}}
+    try:
+        feature_modes = validate_feature_config(doc.get("features"), manifest)
+    except FeatureConfigError as exc:
+        raise ConfigError(str(exc)) from exc
     return {
         "schema_version": doc.get("schema_version", SCHEMA_VERSION),
         "gating": gating,
         "workflow_ref": doc.get("workflow_ref"),
         "protected_paths": protected_paths,
         "internal_registries": internal_registries,
+        "features": {feature_id: {"mode": mode} for feature_id, mode in feature_modes.items()},
         # Provider selection is deliberately not defaulted. General configuration consumers can
         # load a new template instance; provider-dependent paths call provider_contract() below.
         "llm": doc.get("llm"),
     }
+
+
+def effective_feature_modes(org_config):
+    """Return ``feature_id -> mode`` from a loaded org configuration."""
+    features = org_config.get("features", {})
+    return {feature_id: entry["mode"] for feature_id, entry in features.items()}
+
+
+def configuration_revision(document):
+    """Return a secret-safe revision for an instance configuration document."""
+    payload = json.dumps(document, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def provider_contract(org_config):
